@@ -21,6 +21,10 @@ public:
         {
             int lastPage = users_[ user_id ];
             pages_[ lastPage ].userCount--;
+            if( pages_[ lastPage ].userCount == 0 )
+            {
+                 pages_.erase( lastPage );
+            }
         }
 
         users_[ user_id ] = page_count;
