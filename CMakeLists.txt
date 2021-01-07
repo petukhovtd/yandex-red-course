@@ -8,4 +8,4 @@ add_compile_options( -Wall )
 add_compile_options( -Werror )
 add_compile_options( -Wpedantic )
 
-add_executable(red_course slow.cpp)
+add_executable(red_course ebook.cpp)
