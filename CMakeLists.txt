@@ -8,4 +8,4 @@ add_compile_options( -Wall )
 add_compile_options( -Werror )
 add_compile_options( -Wpedantic )
 
-add_executable(red_course swap_sort_copy.cpp)
+add_executable(red_course simple_vector.cpp)
