@@ -8,4 +8,4 @@ add_compile_options( -Wall )
 add_compile_options( -Werror )
 add_compile_options( -Wpedantic )
 
-add_executable(red_course booking.cpp)
+add_executable(red_course object_pool.cpp)
