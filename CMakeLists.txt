@@ -9,4 +9,4 @@ add_compile_options( -Wall )
 add_compile_options( -Werror )
 add_compile_options( -Wpedantic )
 
-add_executable(red_course text_editor.cpp)
+add_executable(red_course stats.cpp server_stats.cpp)
