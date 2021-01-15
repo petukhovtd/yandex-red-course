@@ -9,4 +9,4 @@ add_compile_options( -Wall )
 add_compile_options( -Werror )
 add_compile_options( -Wpedantic )
 
-add_executable(red_course josephus_permutation.cpp)
+add_executable(red_course group_heavy_strings.cpp)
