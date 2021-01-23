@@ -9,7 +9,7 @@ add_compile_options( -Wall )
 #add_compile_options( -Werror )
 add_compile_options( -Wpedantic )
 
-add_executable(${PROJECT_NAME} synchronized.cpp)
+add_executable(${PROJECT_NAME} concurrent_map.cpp)
 
 target_link_libraries(
           ${PROJECT_NAME}
