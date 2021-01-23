@@ -9,4 +9,9 @@ add_compile_options( -Wall )
 #add_compile_options( -Werror )
 add_compile_options( -Wpedantic )
 
-add_executable(red_course priority_collection_2.cpp)
+add_executable(${PROJECT_NAME} matrix_sum.cpp)
+
+target_link_libraries(
+          ${PROJECT_NAME}
+          pthread
+)
