@@ -9,7 +9,16 @@ add_compile_options( -Wall )
 #add_compile_options( -Werror )
 add_compile_options( -Wpedantic )
 
-add_executable(${PROJECT_NAME} concurrent_map.cpp)
+include_directories(
+          search_engine
+)
+
+add_executable(
+          ${PROJECT_NAME}
+          main.cpp
+          parse.cpp
+          search_server.cpp
+)
 
 target_link_libraries(
           ${PROJECT_NAME}
