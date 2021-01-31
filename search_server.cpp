@@ -5,8 +5,9 @@
 #include <iterator>
 #include <sstream>
 #include <iostream>
+#include <numeric>
 
-vector< string > SplitIntoWords( const string& line )
+vector< string > SplitIntoWords( string const& line )
 {
      istringstream words_input( line );
      return { istream_iterator< string >( words_input ), istream_iterator< string >() };
@@ -31,63 +32,77 @@ void SearchServer::UpdateDocumentBase( istream& document_input )
 
 void SearchServer::AddQueriesStream( istream& query_input, ostream& search_results_output )
 {
+     std::vector< std::size_t > docid_count;
+     std::vector< int64_t > docid;
      for( string current_query; getline( query_input, current_query ); )
      {
+          const std::size_t docSize = index.Size();
+          docid_count.resize( docSize );
+          docid_count.assign( docSize, 0 );
+          docid.resize( docSize );
+          std::iota( docid.begin(), docid.end(), 0 );
+
           const auto words = SplitIntoWords( current_query );
 
-          map< size_t, size_t > docid_count;
           for( const auto& word : words )
           {
-               for( const size_t docid : index.Lookup( word ) )
+               for( InvertedIndex::DocIdCount const& docIdCount: index.Lookup( word ) )
                {
-                    docid_count[ docid ]++;
+                    docid_count[ docIdCount.first ] += docIdCount.second;
                }
           }
 
-          vector< pair< size_t, size_t>> search_results( docid_count.begin(), docid_count.end() );
-          sort(
-                    begin( search_results ),
-                    end( search_results ),
-                    []( pair< size_t, size_t > lhs, pair< size_t, size_t > rhs )
+          std::partial_sort( docid.begin(), Head( docid, 5 ).end(), docid.end(),
+                    [ &docid_count ]( int64_t lhs, int64_t rhs )
                     {
-                         int64_t lhs_docid = lhs.first;
-                         auto lhs_hit_count = lhs.second;
-                         int64_t rhs_docid = rhs.first;
-                         auto rhs_hit_count = rhs.second;
-                         return make_pair( lhs_hit_count, -lhs_docid ) > make_pair( rhs_hit_count, -rhs_docid );
-                    }
-          );
+                         return make_pair( docid_count[ lhs ], -lhs ) > make_pair( docid_count[ rhs ], -rhs );
+                    } );
 
           search_results_output << current_query << ':';
-          for( auto[docid, hitcount] : Head( search_results, 5 ) )
+          for( size_t id : Head( docid, 5 ) )
           {
+               const std::size_t hitcount = docid_count[ id ];
+               if( hitcount == 0 )
+               {
+                    break;
+               }
                search_results_output << " {"
-                                     << "docid: " << docid << ", "
+                                     << "docid: " << id << ", "
                                      << "hitcount: " << hitcount << '}';
           }
           search_results_output << endl;
      }
 }
 
-void InvertedIndex::Add( const string& document )
+void InvertedIndex::Add( string document )
 {
-     docs.push_back( document );
-
-     const size_t docid = docs.size() - 1;
+     const size_t docid = docs.size();
      for( const auto& word : SplitIntoWords( document ) )
      {
-          index[ word ].push_back( docid );
+          auto& docCount = index[ word ];
+
+          auto it = std::find_if( docCount.begin(), docCount.end(), [ &docid ]( DocIdCount const& p )
+          {
+               return docid == p.first;
+          });
+          if( it == docCount.end() )
+          {
+               docCount.emplace_back( docid, 1 );
+               continue;
+          }
+          it->second++;
      }
+
+     docs.push_back( std::move( document ));
 }
 
-list< size_t > InvertedIndex::Lookup( const string& word ) const
+InvertedIndex::DocCounter const& InvertedIndex::Lookup( const string& word ) const
 {
      if( auto it = index.find( word ); it != index.end() )
      {
           return it->second;
      }
-     else
-     {
-          return {};
-     }
+
+     static const DocCounter empty;
+     return empty;
 }

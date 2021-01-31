@@ -13,17 +13,25 @@ using namespace std;
 class InvertedIndex
 {
 public:
-     void Add( const string& document );
+     using DocIdCount = std::pair< size_t, std::size_t >;
+     using DocCounter = std::vector< DocIdCount >;
 
-     list< size_t > Lookup( const string& word ) const;
+     void Add( string document );
+
+     DocCounter const& Lookup( const string& word ) const;
 
      const string& GetDocument( size_t id ) const
      {
           return docs[ id ];
      }
 
+     size_t Size() const
+     {
+          return docs.size();
+     }
+
 private:
-     map< string, list< size_t>> index;
+     map< string, DocCounter > index;
      vector< string > docs;
 };
 
