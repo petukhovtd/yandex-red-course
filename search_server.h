@@ -7,6 +7,8 @@
 #include <vector>
 #include <map>
 #include <string>
+#include <future>
+#include "synchronized.h"
 
 using namespace std;
 
@@ -47,5 +49,6 @@ public:
      void AddQueriesStream( istream& query_input, ostream& search_results_output );
 
 private:
-     InvertedIndex index;
+     Synchronized< InvertedIndex > index;
+     std::vector< std::future< void >> futures_;
 };
